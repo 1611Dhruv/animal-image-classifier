@@ -2,6 +2,8 @@
 
 This project implements a custom AlexNet model to classify images of various animals. It includes functionality to download the dataset, preprocess it, train the model, evaluate its performance, and visualize the CNN layers and weights.
 
+![image](assets/AlexNet.png)
+
 ## Overview
 
 1. **Download Dataset**: The dataset is downloaded from Kaggle using the Kaggle API.
