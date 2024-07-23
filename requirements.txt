@@ -2,7 +2,5 @@ torch
 torchvision
 scikit-learn
 matplotlib
-seaborn
-pandas
 kaggle
 tqdm

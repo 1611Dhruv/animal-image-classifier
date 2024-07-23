@@ -1,10 +1,7 @@
 import os
-import random
 
 import kaggle
 import matplotlib.pyplot as plt
-import pandas as pd
-import seaborn as sns
 import torch
 import torch.nn as nn
 import torch.optim as optim
