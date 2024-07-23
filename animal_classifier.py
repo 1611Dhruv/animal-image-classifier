@@ -11,6 +11,7 @@ import torch.optim as optim
 from sklearn.metrics import accuracy_score, classification_report
 from torch.utils.data import DataLoader, random_split
 from torchvision import datasets, transforms
+from tqdm import tqdm  # Import tqdm for progress bar
 
 
 # Custom AlexNet model
@@ -73,7 +74,7 @@ def load_and_split_dataset(base_dir, train_ratio=0.8):
     return train_dataset, test_dataset, dataset.classes
 
 
-# Step 3: Train the model
+# Step 3: Train the model with progress bar
 def train_model(model, dataloaders, criterion, optimizer, num_epochs=25):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model = model.to(device)
@@ -90,8 +91,12 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=25):
 
             running_loss = 0.0
             running_corrects = 0
+            dataloader = dataloaders[phase]
 
-            for inputs, labels in dataloaders[phase]:
+            # Use tqdm to create a progress bar
+            for inputs, labels in tqdm(
+                dataloader, desc=f"{phase.capitalize()} Phase", leave=False
+            ):
                 inputs, labels = inputs.to(device), labels.to(device)
 
                 optimizer.zero_grad()
@@ -108,10 +113,10 @@ def train_model(model, dataloaders, criterion, optimizer, num_epochs=25):
                 running_loss += loss.item() * inputs.size(0)
                 running_corrects += torch.sum(preds == labels.data)
 
-            epoch_loss = running_loss / len(dataloaders[phase].dataset)
-            epoch_acc = running_corrects.double() / len(dataloaders[phase].dataset)
+            epoch_loss = running_loss / len(dataloader.dataset)
+            epoch_acc = running_corrects.double() / len(dataloader.dataset)
 
-            print(f"{phase} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}")
+            print(f"{phase.capitalize()} Loss: {epoch_loss:.4f} Acc: {epoch_acc:.4f}")
 
     return model
 
@@ -126,7 +131,7 @@ def evaluate_model(model, dataloaders, classes):
     all_preds = []
 
     with torch.no_grad():
-        for inputs, labels in dataloaders["test"]:
+        for inputs, labels in tqdm(dataloaders["test"], desc="Evaluating Model"):
             inputs, labels = inputs.to(device), labels.to(device)
             outputs = model(inputs)
             _, preds = torch.max(outputs, 1)
@@ -158,12 +163,9 @@ def visualize_layers_and_weights(model):
 
 # Main function
 def main():
-
-    # if the dataset is not downloaded, download it
     if not os.path.exists("data"):
         download_dataset()
 
-    # assume the data directory has the same format as kaggle structure
     base_dir = "data"
     train_dataset, test_dataset, classes = load_and_split_dataset(base_dir)
 
